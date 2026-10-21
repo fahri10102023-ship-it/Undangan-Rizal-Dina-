@@ -23,7 +23,27 @@ function App(){
   async function addGuest(e){e.preventDefault();if(!newGuest.trim())return;await addDoc(collection(db,'guestList'),{name:newGuest.trim(),code:crypto.randomUUID().slice(0,8).toUpperCase(),createdAt:Timestamp.now()});setNewGuest('')}
   async function addEnvelope(r){const nominal=prompt('Nominal amplop (angka rupiah):');if(!nominal||!/^\d+$/.test(nominal))return;const note=prompt('Catatan (opsional):')||'';await addDoc(collection(db,'envelopes'),{guestName:r.name,amount:Number(nominal),note,createdAt:Timestamp.now(),source:'dicatat admin'});}
   const nav=[['home','Beranda'],['detail','Detail Acara'],['rsvp','RSVP'],['gift','Amplop Digital'],['messages','Ucapan']];
-  return <><header className="top"><a className="brand" href="#home" onClick={()=>setPage('home')}>Rizal <i>&</i> Dina</a><button className="menubtn" onClick={()=>setMenu(!menu)} aria-label="Buka menu">{menu?<X/>:<Menu/>}</button><nav className={menu?'show':''}>{nav.map(([id,label])=><button key={id} onClick={()=>{setPage(id);setMenu(false)}}>{label}</button>}<button onClick={()=>{setPage('admin');setMenu(false)}}>Admin</button></nav></header>
+  return <><header className="top"><a className="brand" href="#home" onClick={()=>setPage('home')}>Rizal <i>&</i> Dina</a><button className="menubtn" onClick={()=>setMenu(!menu)} aria-label="Buka menu">{menu?<X/>:<Menu/>}</button> :''}><nav className={menu ? 'show' : ''}>
+  {nav.map(([id, label]) => (
+    <button
+      key={id}
+      onClick={() => {
+        setPage(id);
+        setMenu(false);
+      }}
+    >
+      {label}
+    </button>
+  ))}
+  <button
+    onClick={() => {
+      setPage('admin');
+      setMenu(false);
+    }}
+  >
+    Admin
+  </button>
+</nav></header>
   {page==='home'&&<main className="hero"><div className="hero-overlay"/><div className="hero-content"><p className="eyebrow">THE WEDDING OF</p><h1>Fahrizal <em>&</em><br/>Dina Silma Aliya</h1><p className="nickname">Rizal & Dina</p><div className="ornament">✦ ───── ❦ ───── ✦</div><p className="date">20 · 11 · 2030</p><p className="intro">Dengan penuh rasa syukur, kami mengundang Anda untuk menjadi bagian dari hari bahagia kami.</p>{guest&&<p className="guesttag">Kepada Yth. {decodeURIComponent(guest)}</p>}<button className="primary" onClick={()=>setPage('detail')}>Buka Undangan <span>↗</span></button><p className="scrollhint">DENGAN CINTA, KAMI MENANTI KEHADIRAN ANDA</p></div></main>}
   {page==='detail'&&<section className="section detail"><p className="eyebrow">SAVE THE DATE</p><h2>Hari Bahagia Kami</h2><p className="muted">Merupakan kehormatan bagi kami apabila Anda berkenan hadir dan memberikan doa restu.</p><div className="detailgrid"><article className="paper"><CalendarDays/><h3>Akad & Resepsi</h3><p>Rabu, 20 November 2030</p><p>Waktu acara akan diperbarui</p><small>Nama orang tua</small><p>Ayah & Ibu Fahrizal<br/>Ayah & Ibu Dina Silma Aliya</p><span className="custom">Silakan ganti nama orang tua sebelum publikasi.</span></article><article className="paper"><MapPin/><h3>Lokasi Acara</h3><p>Alamat mengikuti titik lokasi yang dibagikan</p><a className="primary linkbtn" href={MAPS} target="_blank" rel="noreferrer">Buka Google Maps ↗</a></article></div><p className="quote">“Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu pasangan hidup...”</p></section>}
   {page==='rsvp'&&<section className="section"><p className="eyebrow">KONFIRMASI KEHADIRAN</p><h2>RSVP & Ucapan</h2><p className="muted">Tinggalkan konfirmasi dan doa terbaik untuk Rizal & Dina.</p><form className="form paper" onSubmit={submitRSVP}><label>Nama lengkap<input required value={name} onChange={e=>setName(e.target.value)} placeholder="Nama Anda"/></label><label>Konfirmasi kehadiran<select value={attendance} onChange={e=>setAttendance(e.target.value)}><option>Hadir</option><option>Belum pasti</option><option>Tidak hadir</option></select></label><label>Jumlah tamu<select value={count} onChange={e=>setCount(e.target.value)}>{[1,2,3,4,5].map(n=><option key={n} value={n}>{n} orang</option>)}</select></label><label>Ucapan & doa<textarea required maxLength="500" value={message} onChange={e=>setMessage(e.target.value)} placeholder="Tuliskan doa terbaik Anda..." rows="4"/></label><button className="primary full" type="submit"><Send size={16}/> Kirim RSVP</button>{status&&<p className="status">{status}</p>}</form><p className="privacy"><Clock size={14}/> Ucapan publik otomatis disembunyikan setelah 24 jam. Data RSVP lengkap hanya tersedia bagi admin.</p></section>}
